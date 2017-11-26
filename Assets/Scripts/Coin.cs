@@ -6,11 +6,16 @@ public class Coin : BaseObject {
 
     public int worth;
 
-	// Use this for initialization
-	void Start () {
+    public static int[] customCoinCollisions;
+
+    // Use this for initialization
+    void Start () {
         inEditor = true;
         worth = 1;
-	}
+
+        customCollisions = new int[8];
+        loadCustomValues(customCoinCollisions);
+    }
 	
 	
     void OnTriggerEnter2D(Collider2D other)

@@ -210,6 +210,12 @@ public class Editor : MonoBehaviour
         data.numOfObjects++;
         }
 
+        //Custom collision arrays to be saved
+        data.customCollisions.Add(Player.customPlayerCollisions);
+        data.customCollisions.Add(Enemy.customEnemyCollisions);
+        data.customCollisions.Add(Coin.customCoinCollisions);
+        data.customCollisions.Add(Spring.customSpringCollisions);
+
         Debug.Log(data.numOfObjects);
 
         binaryFormatter.Serialize(file, data);
@@ -228,6 +234,8 @@ public class Editor : MonoBehaviour
 
         public int numOfObjects;
 
+        public List<int[]> customCollisions;
+        
     }
 
     public void Load(string name)
@@ -241,7 +249,13 @@ public class Editor : MonoBehaviour
             //Cast to player data
             Data data = (Data)binaryFormatter.Deserialize(file);
             file.Close();
-            
+
+
+            Player.customPlayerCollisions = data.customCollisions[0];
+            Enemy.customEnemyCollisions = data.customCollisions[1];
+            Coin.customCoinCollisions = data.customCollisions[2];
+            Spring.customSpringCollisions = data.customCollisions[3];
+
             //Start recreating objects as they were 
             for (int i = 0; i < data.numOfObjects; i++)
             {

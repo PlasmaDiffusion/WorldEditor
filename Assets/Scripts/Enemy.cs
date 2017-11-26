@@ -7,6 +7,7 @@ public class Enemy : BaseObject {
     private Rigidbody2D rigidbody2D;
     float horizontalVelocity;
     GameObject playerReference;
+    public static int[] customEnemyCollisions;
 
     // Use this for initialization
     void Start () {
@@ -14,7 +15,11 @@ public class Enemy : BaseObject {
         rigidbody2D = GetComponent<Rigidbody2D>();
         horizontalVelocity = -1.0f; //* Some rigid body speed thing
 
-   
+
+        customCollisions = new int[8];
+        loadCustomValues(customEnemyCollisions);
+     
+
     }
 	
 	// Update is called once per frame
@@ -24,12 +29,17 @@ public class Enemy : BaseObject {
 
         rigidbody2D.velocity = new Vector2(horizontalVelocity, rigidbody2D.velocity.y);
 
-       
 
     }
 
     void OnCollisionEnter2D(Collision2D other)
     {
+        //Fire an event based on what object id was collided with
+        BaseObject obj = other.gameObject.GetComponent<BaseObject>();
+
+        if (obj) fireEvent(customCollisions[obj.prefabID]);
+
+
         //If its below then its ground. Don't make it ground the direction. Otherwise it isn't ground, so turn around
         if (other.transform.position.y + 0.5f >= transform.position.y)
         {
@@ -56,6 +66,12 @@ public class Enemy : BaseObject {
             {
                 player.health -= 1;
                 player.updateHUD();
+
+                if (player.health < 0)
+                { 
+                //End game here
+                GameObject.Find("PlayButton").GetComponent<PlayButton>().startLevel();
+                }
             }
         }
     }

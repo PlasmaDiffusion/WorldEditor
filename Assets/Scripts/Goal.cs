@@ -18,6 +18,8 @@ public class Goal : BaseObject {
         if (obj.prefabID == 3)
         {
             //End game here
+            GameObject.Find("PlayButton").GetComponent<PlayButton>().startLevel();
+
         }
 
     }

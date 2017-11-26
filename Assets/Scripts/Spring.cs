@@ -5,11 +5,16 @@ using UnityEngine;
 public class Spring : BaseObject {
 
     float springVelocity;
+    
+    public static int[] customSpringCollisions;
 
-	// Use this for initialization
-	void Start () {
-        springVelocity = 10.0f;
+    // Use this for initialization
+    void Start () {
+        springVelocity = 20.0f;
         inEditor = true;
+
+        customCollisions = new int[8];
+        loadCustomValues(customSpringCollisions);
 	}
 	
 	// Update is called once per frame

@@ -20,7 +20,7 @@ public class PlayButton : MonoBehaviour {
 	}
 
     //Make every editor object become an active game object
-    void startLevel()
+    public void startLevel()
     {
         Text t = transform.GetChild(0).GetComponent<Text>();
 

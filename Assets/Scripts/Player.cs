@@ -11,10 +11,11 @@ public class Player : BaseObject {
     private float jumpVel;
 
     public int score;
-    public int health;
 
-	// Use this for initialization
-	void Start () {
+    public static int[] customPlayerCollisions;
+
+    // Use this for initialization
+    void Start () {
         rigidbody = GetComponent<Rigidbody2D>();
         inEditor = true;
 
@@ -22,6 +23,9 @@ public class Player : BaseObject {
         health = 5;
 
         updateHUD();
+
+        customCollisions = new int[8];
+        loadCustomValues(customPlayerCollisions);
 	}
 	
 	// Update is called once per frame
@@ -29,6 +33,8 @@ public class Player : BaseObject {
 
 
         if (inEditor) return;
+
+        
 
         if (rigidbody.velocity.y > -0.2f && rigidbody.velocity.y < 0.2f) grounded = true;
 
