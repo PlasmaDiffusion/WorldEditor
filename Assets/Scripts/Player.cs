@@ -26,6 +26,8 @@ public class Player : BaseObject {
 
         customCollisions = new int[8];
         loadCustomValues(customPlayerCollisions);
+
+        name = "Player";
 	}
 	
 	// Update is called once per frame
@@ -36,7 +38,7 @@ public class Player : BaseObject {
 
         
 
-        if (rigidbody.velocity.y > -0.2f && rigidbody.velocity.y < 0.2f) grounded = true;
+        if (rigidbody.velocity.y == 0.0f && jumpVel == 0.0f) grounded = true;
 
         else grounded = false;
 

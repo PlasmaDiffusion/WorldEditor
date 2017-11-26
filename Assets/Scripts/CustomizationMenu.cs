@@ -5,12 +5,22 @@ using UnityEngine.UI;
 
 public class CustomizationMenu : MonoBehaviour {
 
-    bool turnedOn;
+    public bool turnedOn;
     public GameObject selectedObject;
+
+    private GameObject exitButton;
+    private GameObject collisionButton;
 
     void Start()
     {
         turnedOn = false;
+
+        exitButton = transform.GetChild(0).gameObject;
+        collisionButton = transform.GetChild(1).gameObject;
+
+        exitButton.SetActive(false);
+        collisionButton.SetActive(false);
+
     }
 
 	// Use this for initialization
@@ -20,11 +30,18 @@ public class CustomizationMenu : MonoBehaviour {
         {
             turnedOn = true;
 
+            exitButton.SetActive(true);
+            collisionButton.SetActive(true);
+
             loadCustomCollisions();
         }
         else if (turnedOn)
         {
             turnedOn = false;
+
+            exitButton.SetActive(false);
+            collisionButton.SetActive(false);
+
         }
     }
 
@@ -33,46 +50,57 @@ public class CustomizationMenu : MonoBehaviour {
         int objectId = selectedObject.GetComponent<BaseObject>().prefabID;
 
         //Object is player
-        if (objectId == 3)
+        if (objectId == 3 && Player.customPlayerCollisions != null)
         {
-        GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Player.customPlayerCollisions[3];
-        GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Player.customPlayerCollisions[4];
-        GameObject.Find("DropdownCoins").GetComponent<Dropdown>().value = Player.customPlayerCollisions[6];
-        GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = Player.customPlayerCollisions[5];
-        GameObject.Find("DropdownGround").GetComponent<Dropdown>().value = Player.customPlayerCollisions[5];
+        GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Player.customPlayerCollisions[3] + 1;
+        GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Player.customPlayerCollisions[4] + 1;
+        GameObject.Find("DropdownCoins").GetComponent<Dropdown>().value = Player.customPlayerCollisions[6] + 1;
+        GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = Player.customPlayerCollisions[5] + 1;
+        GameObject.Find("DropdownGround").GetComponent<Dropdown>().value = Player.customPlayerCollisions[0] + 1;
         }
 
         //Object is enemy
-        if (objectId == 4)
+        if (objectId == 4 && Enemy.customEnemyCollisions != null)
         {
-            GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[3];
-            GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[4];
-            GameObject.Find("DropdownCoins").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[6];
-            GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[5];
+            GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[3] + 1;
+            GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[4] + 1;
+            GameObject.Find("DropdownCoins").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[6] + 1;
+            GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[5] + 1;
+            GameObject.Find("DropdownGround").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[0] + 1;
         }
 
         //Object is coin
-        if (objectId == 6)
+        if (objectId == 6 && Coin.customCoinCollisions != null)
         {
-            GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Coin.customCoinCollisions[3];
-            GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Coin.customCoinCollisions[4];
-            GameObject.Find("DropdownCoins").GetComponent<Dropdown>().value = Coin.customCoinCollisions[6];
-            GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = Coin.customCoinCollisions[5];
+            GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Coin.customCoinCollisions[3] + 1;
+            GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Coin.customCoinCollisions[4] + 1;
+            GameObject.Find("DropdownCoins").GetComponent<Dropdown>().value = Coin.customCoinCollisions[6] + 1;
+            GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = Coin.customCoinCollisions[5] + 1;
+            GameObject.Find("DropdownGround").GetComponent<Dropdown>().value = Coin.customCoinCollisions[0] + 1;
         }
 
         //Object is spring
-        if (objectId == 5)
+        if (objectId == 5 && Spring.customSpringCollisions != null)
         {
-            GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Spring.customSpringCollisions[3];
-            GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Spring.customSpringCollisions[4];
-            GameObject.Find("DropdownCoins").GetComponent<Dropdown>().value = Spring.customSpringCollisions[6];
-            GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = Spring.customSpringCollisions[5];
+            GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Spring.customSpringCollisions[3] + 1;
+            GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Spring.customSpringCollisions[4] + 1;
+            GameObject.Find("DropdownCoins").GetComponent<Dropdown>().value = Spring.customSpringCollisions[6] + 1;
+            GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = Spring.customSpringCollisions[5] + 1;
+            GameObject.Find("DropdownGround").GetComponent<Dropdown>().value = Spring.customSpringCollisions[0] + 1;
         }
     }
 
     //Applies all custom collisions according to the Dropdown menus
     public void applyCustomCollisions()
     {
+
+        if (selectedObject == null)
+        {
+            Debug.Log("Selected object got destroyed.");
+            return;
+        }
+
+
         int eventValue;
 
         //When colliding with the player

@@ -22,7 +22,12 @@ public class Coin : BaseObject {
     {
         BaseObject obj = other.GetComponent<BaseObject>();
 
-            if (obj.prefabID == 3)
+            if (obj)
+            {
+            fireEvent(customCollisions[obj.prefabID]);
+            }
+
+           if (obj.prefabID == 3)
             {
             Player player = other.GetComponent<Player>();
             player.score+= worth;

@@ -27,6 +27,20 @@ public class Editor : MonoBehaviour
         cam = transform.GetChild(0).gameObject;
         selectedObject = null;
         canMoveCamera = true;
+
+        //Initialize some static values
+        Player.customPlayerCollisions = new int[8];
+        for (int i = 0; i < 8; i++) Player.customPlayerCollisions[i] = -1;
+
+        Enemy.customEnemyCollisions = new int[8];
+        for (int i = 0; i < 8; i++) Enemy.customEnemyCollisions[i] = -1;
+
+        Coin.customCoinCollisions = new int[8];
+        for (int i = 0; i < 8; i++) Coin.customCoinCollisions[i] = -1;
+
+        Spring.customSpringCollisions = new int[8];
+        for (int i = 0; i < 8; i++) Spring.customSpringCollisions[i] = -1;
+
     }
 
     // Update is called once per frame
@@ -107,7 +121,7 @@ public class Editor : MonoBehaviour
         getAllSceneObjects();
 
         //Save all scene objects
-        Save("test");
+        Save("testingScene");
 
         foreach (GameObject obj in sceneObjects)
         {
@@ -157,7 +171,7 @@ public class Editor : MonoBehaviour
         }
 
         //Now load the scene objects back
-        Load("test");
+        Load("testingScene");
     }
 
     public void destroyAllSceneObjects()
@@ -195,7 +209,7 @@ public class Editor : MonoBehaviour
         data.prefabID = new List<int>();
         data.numOfObjects = 0;
 
-        Debug.Log(sceneObjects.Length);
+
 
         foreach (GameObject currentGameObject in sceneObjects)
         {
@@ -210,13 +224,15 @@ public class Editor : MonoBehaviour
         data.numOfObjects++;
         }
 
+        data.customCollisions = new List<int[]>();
+
         //Custom collision arrays to be saved
         data.customCollisions.Add(Player.customPlayerCollisions);
         data.customCollisions.Add(Enemy.customEnemyCollisions);
         data.customCollisions.Add(Coin.customCoinCollisions);
         data.customCollisions.Add(Spring.customSpringCollisions);
 
-        Debug.Log(data.numOfObjects);
+
 
         binaryFormatter.Serialize(file, data);
         file.Close();
@@ -250,10 +266,17 @@ public class Editor : MonoBehaviour
             Data data = (Data)binaryFormatter.Deserialize(file);
             file.Close();
 
-
+            //Load custom collision static variables here!
+            if (data.customCollisions != null)
             Player.customPlayerCollisions = data.customCollisions[0];
+
+            if (data.customCollisions != null)
             Enemy.customEnemyCollisions = data.customCollisions[1];
+
+            if (data.customCollisions != null)
             Coin.customCoinCollisions = data.customCollisions[2];
+
+            if (data.customCollisions != null)
             Spring.customSpringCollisions = data.customCollisions[3];
 
             //Start recreating objects as they were 

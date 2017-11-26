@@ -24,7 +24,14 @@ public class Spring : BaseObject {
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Collided");
+
+        BaseObject obj = other.GetComponent<BaseObject>();
+
+        if (obj)
+        {
+            fireEvent(customCollisions[obj.prefabID]);
+        }
+
         //Bounce if other object is above when colliding
         if (other.transform.position.y > transform.position.y)
         {

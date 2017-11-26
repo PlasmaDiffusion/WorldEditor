@@ -8,6 +8,7 @@ public class BaseObject : MonoBehaviour {
 
     public bool inEditor;
     protected bool clickedOn;
+    static bool disableClick;
 
     public int prefabID;
 
@@ -42,6 +43,10 @@ public class BaseObject : MonoBehaviour {
     {
         if (!inEditor) return;
 
+        disableClick = GameObject.Find("CustomUI").GetComponent<CustomizationMenu>().turnedOn;
+
+        if (disableClick) return;
+
        if (Input.GetMouseButtonDown(0)) //Drag on left click
         {
 
@@ -57,8 +62,11 @@ public class BaseObject : MonoBehaviour {
         }
         else if (Input.GetMouseButtonDown(2) || Input.GetKey(KeyCode.Space)) //Customize if middle click
         {
-            GameObject.Find("CustomUI").GetComponent<CustomizationMenu>().toggle();
-            GameObject.Find("CustomUI").GetComponent<CustomizationMenu>().toggle();
+
+            CustomizationMenu menu = GameObject.Find("CustomUI").GetComponent<CustomizationMenu>();
+           menu.selectedObject = gameObject;
+           menu.toggle();
+            menu.transform.position = Camera.main.WorldToScreenPoint(transform.position);
         }
     }
 
@@ -67,8 +75,12 @@ public class BaseObject : MonoBehaviour {
     {
         if (customCollisionList != null)
         {
-
-        for (int i = 0; i < customCollisions.Length; i++) customCollisions[i] = customCollisionList[i];
+            Debug.Log("Loading some custom collisions");
+            for (int i = 0; i < customCollisions.Length; i++)
+            {
+                customCollisions[i] = customCollisionList[i];
+                Debug.Log(customCollisionList[i]);
+            }
 
         }
         else //If the object has none then default to nothing
@@ -132,6 +144,9 @@ public class BaseObject : MonoBehaviour {
 
     public void fireEvent(int eventID)
     {
+
+        Debug.Log("Firing custom event " + eventID);
+
         switch ( eventID)
         {
             case 0: //Get health
@@ -146,20 +161,27 @@ public class BaseObject : MonoBehaviour {
             case 2: //Take damage
                 health--;
 
-                if (health > 0) Destroy(gameObject);
+
+                if (health <= 0)
+                {
+                    if (name != "Player") Destroy(gameObject);
+                    else GameObject.Find("PlayButton").GetComponent<PlayButton>().startLevel();
+                }
 
                 break;
 
             case 3: //Destroy
-                Destroy(gameObject);
+
+                if (name != "Player") Destroy(gameObject);
+                else GameObject.Find("PlayButton").GetComponent<PlayButton>().startLevel();
 
                 break;
             case 4: //Bounce
                Rigidbody2D rigidbody =  gameObject.GetComponent<Rigidbody2D>();
                 if (rigidbody)
                 {
-                    if (rigidbody.velocity.y < 10.0f)
-                        rigidbody.velocity = new Vector2(rigidbody.velocity.x, rigidbody.velocity.y + 10.0f);
+                    if (rigidbody.velocity.y < 20.0f)
+                        rigidbody.velocity = new Vector2(rigidbody.velocity.x, rigidbody.velocity.y + 20.0f);
                 }
 
                 break;
