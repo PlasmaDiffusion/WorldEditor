@@ -13,9 +13,13 @@ public class BaseObject : MonoBehaviour {
     public int prefabID;
 
     protected int[] customCollisions;
-    protected int[] customInputs;
-
+    
     public int health;
+
+    public float mass;
+    public float linearDrag;
+    public float gravityScale;
+    public bool rotate;
 
 	// Use this for initialization
 	void Start () {
@@ -30,7 +34,15 @@ public class BaseObject : MonoBehaviour {
 
         if (prefabID == 1) transform.eulerAngles = new Vector3(0.0f, 0.0f, 45.0f);
 
-	}
+
+        //rb
+        mass = 0.0f;
+        linearDrag = 0.0f;
+        gravityScale = 0.0f;
+        rotate = false;
+
+
+    }
 
     // Update is called once per frame
     protected void Update () {
@@ -89,24 +101,25 @@ public class BaseObject : MonoBehaviour {
         }
     }
 
+    public void loadRigidBody()
+    {
+        Rigidbody2D rigidbody = gameObject.GetComponent<Rigidbody2D>();
+        if (rigidbody)
+        {
+            rigidbody.mass = mass;
+            rigidbody.drag = linearDrag;
+            rigidbody.gravityScale = gravityScale;
+            rigidbody.mass = mass;
+        }
+
+    }
+
     //Custom collisions are set to nothing
     protected void defaultCustomValues()
     {
         for (int i = 0; i < customCollisions.Length; i++) customCollisions[i] = -1;
     }
 
-    protected void detectSpecialInputs()
-    {
-        if (Input.GetKey(KeyCode.W))
-        {
-            fireEvent(customInputs[0]);
-        }
-
-        if (Input.GetKeyUp(KeyCode.W))
-        {
-            
-        }
-    }
 
     public void OnCollisionEnter2D(Collision2D other)
     {
@@ -191,8 +204,4 @@ public class BaseObject : MonoBehaviour {
         }
     }
 
-    public void showWindow()
-    {
-
-    }
 }

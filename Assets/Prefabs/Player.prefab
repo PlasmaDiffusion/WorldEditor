@@ -143,5 +143,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inEditor: 0
   prefabID: 3
-  score: 0
   health: 0
+  score: 0

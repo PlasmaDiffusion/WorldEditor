@@ -190,4 +190,25 @@ public class CustomizationMenu : MonoBehaviour {
 
         }
     }
+
+    void loadRigidbody()
+    {
+        BaseObject obj = gameObject.GetComponent<BaseObject>();
+
+        GameObject.Find("MassInput").GetComponent<InputField>().text = obj.mass.ToString();
+        GameObject.Find("GravityInput").GetComponent<InputField>().text = obj.gravityScale.ToString();
+        GameObject.Find("LinearDragInput").GetComponent<InputField>().text = obj.linearDrag.ToString();
+        GameObject.Find("RotateToggle").GetComponent<Toggle>().isOn = obj.rotate;
+    }
+
+    public void setRigidbody()
+    {
+        
+        BaseObject obj =gameObject.GetComponent<BaseObject>();
+
+        obj.mass = float.Parse(GameObject.Find("MassInput").GetComponent<InputField>().text);
+        obj.gravityScale = float.Parse(GameObject.Find("GravityInput").GetComponent<InputField>().text);
+        obj.linearDrag = float.Parse(GameObject.Find("LinearDragInput").GetComponent<InputField>().text);
+        obj.rotate = (GameObject.Find("RotateToggle").GetComponent<Toggle>().isOn);
+    }
 }
