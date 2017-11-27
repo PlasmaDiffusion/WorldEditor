@@ -10,6 +10,7 @@ public class CustomizationMenu : MonoBehaviour {
 
     private GameObject exitButton;
     private GameObject collisionButton;
+    private GameObject rigidBodyButton;
 
     void Start()
     {
@@ -17,9 +18,11 @@ public class CustomizationMenu : MonoBehaviour {
 
         exitButton = transform.GetChild(0).gameObject;
         collisionButton = transform.GetChild(1).gameObject;
+        rigidBodyButton = transform.GetChild(2).gameObject;
 
         exitButton.SetActive(false);
         collisionButton.SetActive(false);
+        rigidBodyButton.SetActive(false);
 
     }
 
@@ -32,8 +35,10 @@ public class CustomizationMenu : MonoBehaviour {
 
             exitButton.SetActive(true);
             collisionButton.SetActive(true);
+            rigidBodyButton.SetActive(true);
 
-            loadCustomCollisions();
+
+            hideWindows();
         }
         else if (turnedOn)
         {
@@ -41,6 +46,35 @@ public class CustomizationMenu : MonoBehaviour {
 
             exitButton.SetActive(false);
             collisionButton.SetActive(false);
+            rigidBodyButton.SetActive(false);
+
+
+        }
+    }
+    private void hideWindows()
+    {
+        collisionButton.transform.GetChild(1).gameObject.SetActive(false);
+        rigidBodyButton.transform.GetChild(1).gameObject.SetActive(false);
+    }
+
+
+    public void showWindow(int windowNumber)
+    {
+
+        hideWindows();
+
+        if (windowNumber == 1)
+        {
+            collisionButton.transform.GetChild(1).gameObject.SetActive(true);
+        }
+
+        if (windowNumber == 2)
+        {
+            rigidBodyButton.transform.GetChild(1).gameObject.SetActive(true);
+        }
+
+        if (windowNumber == 3)
+        {
 
         }
     }

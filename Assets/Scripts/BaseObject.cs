@@ -71,7 +71,7 @@ public class BaseObject : MonoBehaviour {
     }
 
     //Load custom collisions if the object has it
-    protected void loadCustomValues(int[] customCollisionList)
+    public void loadCustomValues(int[] customCollisionList)
     {
         if (customCollisionList != null)
         {
@@ -155,7 +155,9 @@ public class BaseObject : MonoBehaviour {
                 break;
 
             case 1: //Get points
-                GameObject.Find("Player").GetComponent<Player>().score++;
+                Player p = GameObject.Find("Player").GetComponent<Player>();
+                p.score++;
+                p.updateHUD();
                 break;
 
             case 2: //Take damage
@@ -187,5 +189,10 @@ public class BaseObject : MonoBehaviour {
                 break;
 
         }
+    }
+
+    public void showWindow()
+    {
+
     }
 }

@@ -118,20 +118,32 @@ public class Editor : MonoBehaviour
     {
         canMoveCamera = false;
 
-        getAllSceneObjects();
 
         //Save all scene objects
         Save("testingScene");
+        
+
+
+        getAllSceneObjects();
 
         foreach (GameObject obj in sceneObjects)
         {
-            
-            obj.GetComponent<BaseObject>().inEditor = false;
+
+            BaseObject baseObject = obj.GetComponent<BaseObject>();
+            baseObject.inEditor = false;
+
+            //Make sure static values get loaded in. Scene objects won't call onStart() when playtesting, so this is a workaround------
+            if (baseObject.prefabID == 4) baseObject.loadCustomValues(Enemy.customEnemyCollisions);
+            if (baseObject.prefabID == 6) baseObject.loadCustomValues(Coin.customCoinCollisions);
+            if (baseObject.prefabID == 5) baseObject.loadCustomValues(Spring.customSpringCollisions);
 
 
-            //Attach camera to player
-            if (obj.GetComponent<BaseObject>().prefabID == 3)
+            if (baseObject.prefabID == 3)
             {
+
+                baseObject.loadCustomValues(Player.customPlayerCollisions);
+
+                //Attach camera to player
                 cam.transform.parent = obj.transform;
                 cam.transform.localPosition = new Vector3(0.0f, 0.0f, cam.transform.localPosition.z);
             }
