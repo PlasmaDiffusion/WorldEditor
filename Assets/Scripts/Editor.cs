@@ -55,5 +55,10 @@ public class Editor : MonoBehaviour {
         selectedObject = obj;
         waitTime = 1.0f;
         holdingObject = true;
+
+        if(obj!= null && obj.GetComponent<Rigidbody>()!=null)
+        {
+            obj.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        }
     }
 }

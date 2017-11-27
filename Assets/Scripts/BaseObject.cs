@@ -17,7 +17,7 @@ public class BaseObject : MonoBehaviour {
         if (inEditor) return;
 	}
 
-    void OnMouseDown()
+    protected virtual void OnMouseDown()
     {
         if (!inEditor) return;
         Editor editor = GameObject.Find("EditorObject").GetComponent<Editor>();
