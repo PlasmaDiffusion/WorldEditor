@@ -21,6 +21,8 @@ public class Editor : MonoBehaviour
 
     public GameObject[] prefabs;
 
+    public int[] customGeneralCollisions;
+
     // Use this for initialization
     void Start()
     {
@@ -28,7 +30,10 @@ public class Editor : MonoBehaviour
         selectedObject = null;
         canMoveCamera = true;
 
-        //Initialize some static values
+        //Initialize some collision values
+        customGeneralCollisions = new int[8];
+        for (int i = 0; i < 8; i++) customGeneralCollisions[i] = -1; //General custom collisions are for unspecified ones like ground or the goal
+
         Player.customPlayerCollisions = new int[8];
         for (int i = 0; i < 8; i++) Player.customPlayerCollisions[i] = -1;
 
@@ -130,15 +135,13 @@ public class Editor : MonoBehaviour
         {
 
             BaseObject baseObject = obj.GetComponent<BaseObject>();
-            baseObject.inEditor = false;
+            baseObject.becomeGameState();
 
-            //Make sure static values get loaded in. Scene objects won't call onStart() when playtesting, so this is a workaround------
+            //Make sure static values get loaded in. Scene objects won't call onStart() when playtesting, so this is a workaround. Could alternatively overwrite the become gamestate function...------
             if (baseObject.prefabID == 4) baseObject.loadCustomValues(Enemy.customEnemyCollisions);
-            if (baseObject.prefabID == 6) baseObject.loadCustomValues(Coin.customCoinCollisions);
-            if (baseObject.prefabID == 5) baseObject.loadCustomValues(Spring.customSpringCollisions);
-
-
-            if (baseObject.prefabID == 3)
+            else if (baseObject.prefabID == 6) baseObject.loadCustomValues(Coin.customCoinCollisions);
+            else if (baseObject.prefabID == 5) baseObject.loadCustomValues(Spring.customSpringCollisions);
+           else if (baseObject.prefabID == 3)
             {
 
                 baseObject.loadCustomValues(Player.customPlayerCollisions);
@@ -147,7 +150,10 @@ public class Editor : MonoBehaviour
                 cam.transform.parent = obj.transform;
                 cam.transform.localPosition = new Vector3(0.0f, 0.0f, cam.transform.localPosition.z);
             }
-
+            else
+            { 
+            baseObject.loadCustomValues(customGeneralCollisions);
+            }
         }
         
 
@@ -202,7 +208,7 @@ public class Editor : MonoBehaviour
     }
 
 
-    //The following save and load functions are for saving entire levels. These functions were taken and modified from the following tutorial: https://unity3d.com/learn/tutorials/topics/scripting/persistence-saving-and-loading-data
+    //The following save and load functions are for saving entire levels, as binary data. These functions were taken and modified from the following unity tutorial: https://unity3d.com/learn/tutorials/topics/scripting/persistence-saving-and-loading-data
 
     public void Save(string name)
     {
@@ -219,21 +225,38 @@ public class Editor : MonoBehaviour
         data.posX = new List<float>();
         data.posY = new List<float>();
         data.prefabID = new List<int>();
+
+        data.mass = new List<float>();
+        data.drag = new List<float>();
+        data.gravity = new List<float>();
+        data.rotate = new List<bool>();
+
+        data.customVelX = new List<float>();
+        data.customVelY = new List<float>();
+
         data.numOfObjects = 0;
 
 
-
+        //Save everything for every scene object
         foreach (GameObject currentGameObject in sceneObjects)
         {
 
-            
+            BaseObject baseObject = currentGameObject.GetComponent<BaseObject>();
 
-        data.posX.Add(currentGameObject.transform.position.x);
-        data.posY.Add(currentGameObject.transform.position.y);
+            data.posX.Add(currentGameObject.transform.position.x);
+            data.posY.Add(currentGameObject.transform.position.y);
 
-        data.prefabID.Add(currentGameObject.GetComponent<BaseObject>().prefabID);
+            data.prefabID.Add(baseObject.prefabID);
 
-        data.numOfObjects++;
+            data.mass.Add(baseObject.mass);
+            data.drag.Add(baseObject.linearDrag);
+            data.gravity.Add(baseObject.gravityScale);
+            data.rotate.Add(baseObject.rotate);
+
+            data.customVelX.Add(baseObject.overwriteVelocity.x);
+            data.customVelY.Add(baseObject.overwriteVelocity.y);
+
+            data.numOfObjects++;
         }
 
         data.customCollisions = new List<int[]>();
@@ -243,6 +266,7 @@ public class Editor : MonoBehaviour
         data.customCollisions.Add(Enemy.customEnemyCollisions);
         data.customCollisions.Add(Coin.customCoinCollisions);
         data.customCollisions.Add(Spring.customSpringCollisions);
+        data.customCollisions.Add(customGeneralCollisions);
 
 
 
@@ -254,15 +278,33 @@ public class Editor : MonoBehaviour
     [System.Serializable]
     class Data : System.Object
     {
+        //This data class uses lists. Each element is for one object
 
         public List<float> posX;
         public List<float> posY;
 
+
+        //PrefabID is the most important variable, that lets the game know what the object originally was.
         public List<int> prefabID;
 
+        //Custom rigid body stuff
+        public List<float> mass;
+        public List<float> gravity;
+        public List<float> drag;
+        public List<bool> rotate;
+
+        //Custom movement (Vectors are a unity thing so floats have to be used)
+        public List<float> customVelX;
+        public List<float> customVelY;
+
+        //Arrays of custom collision events
+        public List<int[]> customCollisions;
+
+
+
+        //Number of objects saved (for a for loop in the loading later)
         public int numOfObjects;
 
-        public List<int[]> customCollisions;
         
     }
 
@@ -271,6 +313,7 @@ public class Editor : MonoBehaviour
 
         if (File.Exists(Application.persistentDataPath + "/" + name + ".dat"))
         {
+            
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + "/" + name + ".dat", FileMode.Open);
 
@@ -280,21 +323,38 @@ public class Editor : MonoBehaviour
 
             //Load custom collision static variables here!
             if (data.customCollisions != null)
+            { 
             Player.customPlayerCollisions = data.customCollisions[0];
-
-            if (data.customCollisions != null)
+                
             Enemy.customEnemyCollisions = data.customCollisions[1];
 
-            if (data.customCollisions != null)
             Coin.customCoinCollisions = data.customCollisions[2];
-
-            if (data.customCollisions != null)
+            
             Spring.customSpringCollisions = data.customCollisions[3];
 
-            //Start recreating objects as they were 
+                customGeneralCollisions = data.customCollisions[4];
+            }
+
+            //Start recreating objects as they were when saved
             for (int i = 0; i < data.numOfObjects; i++)
             {
-                Instantiate(prefabs[data.prefabID[i]], new Vector3(data.posX[i], data.posY[i], 0.0f), new Quaternion());
+               GameObject newObject = Instantiate(prefabs[data.prefabID[i]], new Vector3(data.posX[i], data.posY[i], 0.0f), new Quaternion());
+
+                //Load in specific custom values here
+                BaseObject baseObject = newObject.GetComponent<BaseObject>();
+
+                if (baseObject)
+                {
+                    Debug.Log("mass: " + data.mass[i]);
+                baseObject.mass = data.mass[i];
+                baseObject.gravityScale = data.gravity[i];
+                baseObject.linearDrag = data.drag[i];
+                baseObject.rotate = data.rotate[i];
+
+                baseObject.overwriteVelocity.x = data.customVelX[i];
+                baseObject.overwriteVelocity.y = data.customVelY[i];
+                baseObject.makeDefaults = false;
+                }
             }
         }
     }

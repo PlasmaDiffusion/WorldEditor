@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : BaseObject {
-
-    private Rigidbody2D rigidbody2D;
+    
     float horizontalVelocity;
     GameObject playerReference;
     public static int[] customEnemyCollisions;
@@ -12,7 +11,7 @@ public class Enemy : BaseObject {
     // Use this for initialization
     void Start () {
         inEditor = true;
-        rigidbody2D = GetComponent<Rigidbody2D>();
+        rigidbody = GetComponent<Rigidbody2D>();
         horizontalVelocity = -1.0f; //* Some rigid body speed thing
 
 
@@ -27,8 +26,13 @@ public class Enemy : BaseObject {
 
         if (inEditor) return;
 
-        rigidbody2D.velocity = new Vector2(horizontalVelocity, rigidbody2D.velocity.y);
-
+        //Automatically move unless custom velocity is used
+        if (overwriteVelocity.x == 0 && overwriteVelocity.y == 0)
+            rigidbody.velocity = new Vector2(horizontalVelocity, rigidbody.velocity.y);
+        else
+        {
+            rigidbody.velocity = overwriteVelocity;
+        }
 
     }
 
@@ -40,7 +44,7 @@ public class Enemy : BaseObject {
         if (obj) fireEvent(customCollisions[obj.prefabID]);
 
 
-        //If its below then its ground. Don't make it ground the direction. Otherwise it isn't ground, so turn around
+        //If its below then its ground. Don't make the enemy turn around if ground. Otherwise it isn't ground, so turn around
         if (other.transform.position.y + 0.5f >= transform.position.y)
         {
             Debug.Log("Collided");

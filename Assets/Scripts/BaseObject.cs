@@ -16,10 +16,17 @@ public class BaseObject : MonoBehaviour {
     
     public int health;
 
+    //Rigid body tool stuff
     public float mass;
     public float linearDrag;
     public float gravityScale;
     public bool rotate;
+
+    public bool makeDefaults;
+
+    //Animation tool stuff
+    public Vector2 overwriteVelocity;
+    protected Rigidbody2D rigidbody;
 
 	// Use this for initialization
 	void Start () {
@@ -27,20 +34,84 @@ public class BaseObject : MonoBehaviour {
 
         health = 1;
 
-
         customCollisions = new int[8];
 
         defaultCustomValues();
 
         if (prefabID == 1) transform.eulerAngles = new Vector3(0.0f, 0.0f, 45.0f);
 
+        rigidbody = gameObject.GetComponent<Rigidbody2D>();
 
-        //rb
+        Debug.Log("start called ");
+
+        //Set some default values the first time created. Don't do this after loading, otherwise custom stuff might get overwritten.
+        if (makeDefaults)
+        { 
+        //rb editor default values
         mass = 0.0f;
         linearDrag = 0.0f;
         gravityScale = 0.0f;
         rotate = false;
 
+        overwriteVelocity = new Vector2(0.0f, 0.0f);
+        }
+
+    }
+
+    //Transitions from editor state to game state
+    public void becomeGameState()
+    {
+        inEditor = false;
+
+        //Player and enemies always get rigid bodies
+        if (prefabID == 3 || prefabID == 4) rigidbody = gameObject.AddComponent<Rigidbody2D>();
+
+        //Check for custom rigidbody
+        if (mass != 0.0f || linearDrag != 0.0f || gravityScale != 0.0f || rotate)
+        {
+
+
+            //If there are rigidbody values that aren't default, add a rigid body regardless of the object.
+            if (!rigidbody) rigidbody = gameObject.AddComponent<Rigidbody2D>();
+
+            
+            
+                rigidbody.mass = mass;
+                rigidbody.drag = linearDrag;
+                rigidbody.gravityScale = gravityScale;
+
+                //By default rotations are off
+                if (rotate)
+                rigidbody.constraints = RigidbodyConstraints2D.None;
+            
+
+
+
+        }
+    
+
+
+        //Check for custom velocity (animation editor)
+        if (overwriteVelocity.x != 0 || overwriteVelocity.y != 0)
+        {
+
+
+            //If there are movement values that aren't default, add a rigid body regardless of the object.
+            if (!rigidbody) rigidbody = gameObject.AddComponent<Rigidbody2D>();
+
+
+         rigidbody.velocity = overwriteVelocity;
+       
+
+
+
+        }
+
+        //Turn rigid body on
+        if (rigidbody) rigidbody.simulated = true;
+
+        //Default rotations to off
+        if (rigidbody && !rotate) rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
 
     }
 
@@ -48,10 +119,13 @@ public class BaseObject : MonoBehaviour {
     protected void Update () {
         if (inEditor) return;
 
+        if (overwriteVelocity.x != 0 || overwriteVelocity.y != 0)
+        rigidbody.velocity = overwriteVelocity;
+
 	}
 
     //For clicking to move, clicking to delete, or clicking to customize
-    protected void OnMouseOver()
+    protected virtual void OnMouseOver()
     {
         if (!inEditor) return;
 
@@ -85,6 +159,8 @@ public class BaseObject : MonoBehaviour {
     //Load custom collisions if the object has it
     public void loadCustomValues(int[] customCollisionList)
     {
+        customCollisions = new int[8];
+
         if (customCollisionList != null)
         {
             Debug.Log("Loading some custom collisions");

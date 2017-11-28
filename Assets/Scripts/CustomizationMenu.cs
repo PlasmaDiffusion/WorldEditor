@@ -26,6 +26,7 @@ public class CustomizationMenu : MonoBehaviour {
 
     }
 
+
 	// Use this for initialization
 	public void toggle()
     {
@@ -38,6 +39,7 @@ public class CustomizationMenu : MonoBehaviour {
             rigidBodyButton.SetActive(true);
 
 
+            
             hideWindows();
         }
         else if (turnedOn)
@@ -63,24 +65,31 @@ public class CustomizationMenu : MonoBehaviour {
 
         hideWindows();
 
+        //Collision window
         if (windowNumber == 1)
         {
             collisionButton.transform.GetChild(1).gameObject.SetActive(true);
+            loadCustomCollisions();
+
         }
 
+        //Rigidbody window
         if (windowNumber == 2)
         {
             rigidBodyButton.transform.GetChild(1).gameObject.SetActive(true);
+            loadRigidbody();
         }
-
-        if (windowNumber == 3)
-        {
-
-        }
+        
     }
 
     public void loadCustomCollisions()
     {
+        if (selectedObject == null)
+        {
+            Debug.Log("Selected object got destroyed.");
+            return;
+        }
+
         int objectId = selectedObject.GetComponent<BaseObject>().prefabID;
 
         //Object is player
@@ -94,7 +103,7 @@ public class CustomizationMenu : MonoBehaviour {
         }
 
         //Object is enemy
-        if (objectId == 4 && Enemy.customEnemyCollisions != null)
+        else if (objectId == 4 && Enemy.customEnemyCollisions != null)
         {
             GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[3] + 1;
             GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Enemy.customEnemyCollisions[4] + 1;
@@ -104,7 +113,7 @@ public class CustomizationMenu : MonoBehaviour {
         }
 
         //Object is coin
-        if (objectId == 6 && Coin.customCoinCollisions != null)
+        else if (objectId == 6 && Coin.customCoinCollisions != null)
         {
             GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Coin.customCoinCollisions[3] + 1;
             GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Coin.customCoinCollisions[4] + 1;
@@ -114,7 +123,7 @@ public class CustomizationMenu : MonoBehaviour {
         }
 
         //Object is spring
-        if (objectId == 5 && Spring.customSpringCollisions != null)
+        else if (objectId == 5 && Spring.customSpringCollisions != null)
         {
             GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = Spring.customSpringCollisions[3] + 1;
             GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = Spring.customSpringCollisions[4] + 1;
@@ -122,18 +131,29 @@ public class CustomizationMenu : MonoBehaviour {
             GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = Spring.customSpringCollisions[5] + 1;
             GameObject.Find("DropdownGround").GetComponent<Dropdown>().value = Spring.customSpringCollisions[0] + 1;
         }
+
+        //General object
+        else
+        {
+            Editor editor = GameObject.Find("EditorObject").GetComponent<Editor>();
+
+            GameObject.Find("DropdownPlayer").GetComponent<Dropdown>().value = editor.customGeneralCollisions[3] + 1;
+            GameObject.Find("DropdownEnemies").GetComponent<Dropdown>().value = editor.customGeneralCollisions[4] + 1;
+            GameObject.Find("DropdownCoins").GetComponent<Dropdown>().value = editor.customGeneralCollisions[6] + 1;
+            GameObject.Find("DropdownSpring").GetComponent<Dropdown>().value = editor.customGeneralCollisions[5] + 1;
+            GameObject.Find("DropdownGround").GetComponent<Dropdown>().value = editor.customGeneralCollisions[0] + 1;
+        }
     }
 
     //Applies all custom collisions according to the Dropdown menus
     public void applyCustomCollisions()
     {
-
         if (selectedObject == null)
         {
             Debug.Log("Selected object got destroyed.");
             return;
         }
-
+        
 
         int eventValue;
 
@@ -157,22 +177,29 @@ public class CustomizationMenu : MonoBehaviour {
 
         setCustomCollision(5, eventValue);
 
-        //When colliding with the 3 Ground objects
+        //When colliding with the Ground objects
         eventValue = GameObject.Find("DropdownGround").GetComponent<Dropdown>().value;
 
         setCustomCollision(0, eventValue);
         setCustomCollision(1, eventValue);
         setCustomCollision(2, eventValue);
+        setCustomCollision(7, eventValue);
     }
 
     void setCustomCollision(int objectTypeCollidingWith, int spinnerValue)
     {
+        if (selectedObject == null)
+        {
+            Debug.Log("Selected object got destroyed.");
+            return;
+        }
+
         //First determine the selected object we're changing
         switch (selectedObject.GetComponent<BaseObject>().prefabID)
         {
 
             case 3: //Player
-                Player.customPlayerCollisions[objectTypeCollidingWith] = spinnerValue - 1; //It's -1 because a negative value means empty. The first element of the Dropdown is for empty.
+                Player.customPlayerCollisions[objectTypeCollidingWith] = spinnerValue - 1; //It's -1 because a negative value means empty. The first element of the Dropdown at 0 is empty.
                 break;
 
             case 4: //Enemies
@@ -187,13 +214,24 @@ public class CustomizationMenu : MonoBehaviour {
             case 5: // Spring
                 Spring.customSpringCollisions[objectTypeCollidingWith] = spinnerValue - 1;
                 break;
+            default: //Any other object
+                GameObject.Find("EditorObject").GetComponent<Editor>().customGeneralCollisions[objectTypeCollidingWith] = spinnerValue - 1;
+                break;
 
         }
     }
 
     void loadRigidbody()
     {
-        BaseObject obj = gameObject.GetComponent<BaseObject>();
+        if (selectedObject == null)
+        {
+            Debug.Log("Selected object got destroyed.");
+            return;
+        }
+
+        BaseObject obj = selectedObject.GetComponent<BaseObject>();
+
+                if (obj == null) return;
 
         GameObject.Find("MassInput").GetComponent<InputField>().text = obj.mass.ToString();
         GameObject.Find("GravityInput").GetComponent<InputField>().text = obj.gravityScale.ToString();
@@ -203,12 +241,33 @@ public class CustomizationMenu : MonoBehaviour {
 
     public void setRigidbody()
     {
-        
-        BaseObject obj =gameObject.GetComponent<BaseObject>();
+        if (selectedObject == null)
+        {
+            Debug.Log("Selected object got destroyed.");
+            return;
+        }
 
-        obj.mass = float.Parse(GameObject.Find("MassInput").GetComponent<InputField>().text);
-        obj.gravityScale = float.Parse(GameObject.Find("GravityInput").GetComponent<InputField>().text);
-        obj.linearDrag = float.Parse(GameObject.Find("LinearDragInput").GetComponent<InputField>().text);
-        obj.rotate = (GameObject.Find("RotateToggle").GetComponent<Toggle>().isOn);
+        BaseObject obj = selectedObject.GetComponent<BaseObject>();
+
+        if (obj == null) return;
+
+        //Read in rigid body input values. Use TryParse in case a field was left empty.
+        float newMass;
+        if (float.TryParse(GameObject.Find("MassInput").GetComponent<InputField>().text, out newMass))
+            obj.mass = newMass;
+
+        float newGravity;
+        if (float.TryParse(GameObject.Find("GravityInput").GetComponent<InputField>().text, out newGravity))
+            obj.gravityScale = newGravity;
+
+        float newDrag;
+        if(float.TryParse(GameObject.Find("LinearDragInput").GetComponent<InputField>().text, out newDrag))
+        obj.linearDrag = newDrag;
+
+        
+        obj.rotate = GameObject.Find("RotateToggle").GetComponent<Toggle>().isOn;
+
+
+
     }
 }

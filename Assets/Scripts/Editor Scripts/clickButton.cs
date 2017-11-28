@@ -19,17 +19,24 @@ public class clickButton : MonoBehaviour
 
     }
 
+
+
     // Update is called once per frame
     void Update()
     {
 
     }
 
-    void clicked()
+    protected GameObject lastCreated = null;
+
+    protected virtual void clicked()
     {
         Debug.Log("Clicked");
         Editor editor = GameObject.Find("EditorObject").GetComponent<Editor>();
-        editor.attachObject(Instantiate(prefabToCreate));
+
+        lastCreated = Instantiate(prefabToCreate) as GameObject;
+        lastCreated.GetComponent<BaseObject>().makeDefaults = true;
+        editor.attachObject(lastCreated);
 
     }
 

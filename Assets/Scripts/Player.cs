@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Player : BaseObject {
-
-    private Rigidbody2D rigidbody;
+    
     private bool grounded;
 
     private float jumpVel;
@@ -14,11 +13,21 @@ public class Player : BaseObject {
 
     public static int[] customPlayerCollisions;
 
+    public LayerMask collisionLayer;
+
+    private float lastYVelocity;
+    private float consistentVelocity;
+
     // Use this for initialization
     void Start () {
         rigidbody = GetComponent<Rigidbody2D>();
         inEditor = true;
 
+        //Jumping values
+        lastYVelocity = 0.0f;
+        consistentVelocity = 0.0f;
+
+        //Hud values
         score = 0;
         health = 5;
 
@@ -36,11 +45,20 @@ public class Player : BaseObject {
 
         if (inEditor) return;
 
-        
 
-        if (rigidbody.velocity.y == 0.0f && jumpVel == 0.0f) grounded = true;
+        //Check if grounded. Determined by if the y velocity is consistent for enough frames
+        if (rigidbody.velocity.y == lastYVelocity)
+        {
+            consistentVelocity += Time.deltaTime;
 
-        else grounded = false;
+            if (consistentVelocity > 0.2f) grounded = true;
+        }
+        else
+        {
+            grounded = false;
+            consistentVelocity = 0.0f;
+        }
+
 
         if (Input.GetKey(KeyCode.D))
         {
@@ -55,12 +73,18 @@ public class Player : BaseObject {
         if (Input.GetKey(KeyCode.W) && grounded)
         {
             jumpVel = 8.0f;
+            consistentVelocity = 0.0f;
+            grounded = false;
            
         }
         else jumpVel = 0.0f;
 
         rigidbody.velocity += new Vector2(0.0f, jumpVel);
+
+
+        lastYVelocity = rigidbody.velocity.y;
     }
+    
 
     public void updateHUD()
     {

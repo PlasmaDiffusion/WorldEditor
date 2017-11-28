@@ -21,7 +21,6 @@ GameObject:
   - component: {fileID: 4814499882427776}
   - component: {fileID: 33973180962512862}
   - component: {fileID: 23096167214289026}
-  - component: {fileID: 50943836032325670}
   - component: {fileID: 61478459733806214}
   - component: {fileID: 114807978925110320}
   m_Layer: 0
@@ -85,26 +84,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1832595056581626}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!50 &50943836032325670
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1832595056581626}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
 --- !u!61 &61478459733806214
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -144,4 +123,9 @@ MonoBehaviour:
   inEditor: 0
   prefabID: 3
   health: 0
+  mass: 0
+  linearDrag: 0
+  gravityScale: 0
+  rotate: 0
+  overwriteVelocity: {x: 0, y: 0}
   score: 0
